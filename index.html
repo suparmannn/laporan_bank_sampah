@@ -47,6 +47,15 @@
                 </div>
                 <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">→</div>
             </div>
+
+            <div onclick="showScreen('screen-admin-fee')" class="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm flex items-center gap-4 cursor-pointer active:bg-slate-50 transition-all mt-4">
+    <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl shadow-inner">⚙️</div>
+    <div class="flex-1">
+        <h3 class="font-bold text-slate-800 text-sm">Master Biaya Admin</h3>
+        <p class="text-[10px] text-slate-400 font-medium">Setting % Potongan Global</p>
+    </div>
+    <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">→</div>
+</div>
         </div>
     </div>
 
@@ -99,6 +108,51 @@
             </div>
     </div>
 
+    <div id="screen-admin-fee" class="hidden">
+    <div class="p-5 flex items-center border-b bg-white sticky top-0 z-10">
+        <button onclick="showScreen('screen-dashboard')" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-800 font-bold mr-3">←</button>
+        <h1 class="font-extrabold text-slate-900 text-sm uppercase tracking-tight">Master Biaya Admin</h1>
+    </div>
+
+    <div class="p-8 space-y-6">
+        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100">
+            <p class="text-[11px] text-amber-800 leading-relaxed font-medium">
+                <strong>Info:</strong> Persentase di sini akan menjadi nilai default untuk setiap setoran sampah baru.
+            </p>
+        </div>
+
+       <div class="space-y-2">
+    <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Default Biaya Admin (%)</label>
+    <div class="relative">
+        <input type="number" id="input-admin-fee" value="5.00" step="0.01" disabled
+            class="w-full p-4 bg-slate-100 border-none rounded-2xl text-lg font-bold text-slate-400 outline-none transition-all" />
+        <span class="absolute right-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">%</span>
+    </div>
+</div>
+
+<div id="action-area" class="pt-2">
+    <button id="btn-edit-mode" onclick="toggleEditMode(true)" class="w-full bg-emerald-600 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg">
+        Ubah Data
+    </button>
+
+    <div id="edit-actions" class="hidden grid grid-cols-2 gap-3">
+        <button onclick="toggleEditMode(false)" class="py-4 bg-slate-100 text-slate-500 rounded-2xl text-[11px] font-black uppercase">
+            Batal
+        </button>
+        <button onclick="saveAdminFee()" class="py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase shadow-lg">
+            Simpan
+        </button>
+    </div>
+</div>
+
+        <div class="pt-4 border-t border-dashed border-slate-200">
+            <p class="text-[9px] text-slate-400 italic">
+                * Perubahan ini tidak akan mengubah biaya admin pada transaksi yang sudah berstatus 'Success' sebelumnya.
+            </p>
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -115,13 +169,36 @@
     { date: '2026-02-23', cat: 'SAMPAH_OUT', entity: 'Lapak Berkah Recycle', item: 'Plastik PEP', desc: 'Pickup Pengepul', refId: 'RP/BSU-A/2026/02/0005', qty: 80.0, val: 0, bank: 'Unit A' },
 ];
 
-    function showScreen(id) {
-        document.getElementById('screen-dashboard').classList.add('hidden');
-        document.getElementById('screen-report').classList.add('hidden');
-        const target = document.getElementById(id);
-        target.classList.remove('hidden');
-        if(id === 'screen-report') renderReport();
+   // Update fungsi showScreen agar mengenali screen baru
+function showScreen(id) {
+    document.getElementById('screen-dashboard').classList.add('hidden');
+    document.getElementById('screen-report').classList.add('hidden');
+    // Tambahkan baris ini jika kamu menambah screen lain secara manual
+    const adminScreen = document.getElementById('screen-admin-fee');
+    if(adminScreen) adminScreen.classList.add('hidden');
+
+    const target = document.getElementById(id);
+    target.classList.remove('hidden');
+    
+    if(id === 'screen-report') renderReport();
+}
+
+// Fungsi Simpan (Simulasi API call)
+function saveAdminFee() {
+    const feeValue = document.getElementById('input-admin-fee').value;
+    
+    if(feeValue === "" || feeValue < 0) {
+        alert("Masukkan nilai persentase yang valid!");
+        return;
     }
+
+    // Simulasi integrasi ke profile_bank_sampah
+    console.log(`Syncing default_admin_fee_percentage: ${feeValue}% to profile_bank_sampah`);
+    
+    alert(`Berhasil! Biaya admin default diset ke ${feeValue}%. Nilai ini akan otomatis sync ke tabel waste_deposits untuk transaksi mendatang.`);
+    
+    showScreen('screen-dashboard');
+}
 
     function getLabel(cat) {
         const labels = {
@@ -132,6 +209,51 @@
         };
         return labels[cat];
     }
+
+    // Fungsi untuk buka/tutup proteksi input
+function toggleEditMode(isEditing) {
+    const input = document.getElementById('input-admin-fee');
+    const btnEdit = document.getElementById('btn-edit-mode');
+    const editActions = document.getElementById('edit-actions');
+
+    if (isEditing) {
+        // Mode Edit Aktif
+        input.disabled = false;
+        input.classList.remove('bg-slate-100', 'text-slate-400');
+        input.classList.add('bg-white', 'text-slate-900', 'ring-2', 'ring-emerald-500');
+        input.focus();
+        
+        btnEdit.classList.add('hidden');
+        editActions.classList.remove('hidden');
+    } else {
+        // Kembali ke Mode Read-Only (Lock)
+        input.disabled = true;
+        input.classList.add('bg-slate-100', 'text-slate-400');
+        input.classList.remove('bg-white', 'text-slate-900', 'ring-2', 'ring-emerald-500');
+        
+        btnEdit.classList.remove('hidden');
+        editActions.classList.add('hidden');
+    }
+}
+
+// Update fungsi simpan agar otomatis mengunci kembali setelah sukses
+function saveAdminFee() {
+    const feeValue = document.getElementById('input-admin-fee').value;
+    
+    if(feeValue === "" || feeValue < 0) {
+        alert("Masukkan nilai yang valid!");
+        return;
+    }
+
+    // Logic sinkronisasi ke DB profile_bank_sampah di sini...
+    console.log("Simpan default_admin_fee_percentage:", feeValue);
+    
+    alert(`Konfigurasi Berhasil Disimpan: ${feeValue}%`);
+    
+    // Lock kembali field setelah simpan
+    toggleEditMode(false);
+    showScreen('screen-dashboard');
+}
 
     function renderReport() {
         const filter = document.getElementById('f-category').value;
@@ -256,7 +378,6 @@ area.innerHTML = `
 </body>
 
 </html>
-
 
 
 
