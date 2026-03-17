@@ -21,6 +21,44 @@
         .preview-table td { border: 1px solid #e2e8f0; padding: 10px; vertical-align: middle; }
         .excel-header { background: #15803d !important; color: white !important; }
         .excel-header th { background: #15803d !important; color: white !important; }
+        /* Dashboard & Card Responsive */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.banner-box {
+    margin-bottom: 25px;
+    background: #0f172a;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Responsivitas Layar HP */
+@media (max-width: 640px) {
+    .summary-grid {
+        grid-template-columns: 1fr; /* Tumpuk 1 kolom di HP */
+    }
+    .banner-box {
+        flex-direction: column; /* Tumpuk atas bawah di HP */
+        text-align: center;
+        gap: 15px;
+    }
+    .preview-content {
+        padding: 15px; /* Kurangi padding biar luas */
+    }
+    .preview-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+}
     </style>
 </head>
 <body>
@@ -316,12 +354,10 @@ function saveAdminFee() {
     let totalFeeAdmin = 0;
     let totalSelisih = 0;
 
-    // Kalkulasi Data
     filteredData.forEach((t, i) => {
         let hargaSatuan = (t.cat === 'SAMPAH_IN') ? t.buyPrice : (t.cat === 'SAMPAH_OUT' ? t.sellPrice : 0);
         let pctAdmin = (t.cat === 'SAMPAH_IN') ? t.adminPct : 0;
         let pengeluaran = (t.cat === 'FIN_OUT') ? t.val : 0;
-        
         let adminFee = 0;
         let selisihHarga = 0;
 
@@ -333,7 +369,6 @@ function saveAdminFee() {
             selisihHarga = t.qty * (t.sellPrice - t.buyPrice);
             totalQty += t.qty;
         }
-
         let subTotalProfit = adminFee + selisihHarga;
 
         totalSettlement += pengeluaran;
@@ -343,18 +378,17 @@ function saveAdminFee() {
         rows += `
             <tr style="font-size: 10px; border-bottom: 1px solid #f1f5f9;">
                 <td style="text-align:center; padding:10px; color:#94a3b8;">${i+1}</td>
-                <td style="padding:10px;">${t.date}</td>
-                <td style="padding:10px;">
+                <td style="padding:10px; white-space:nowrap">${t.date}</td>
+                <td style="padding:10px; min-width:120px">
                     <div style="font-weight:700; color:#1e293b">${t.entity}</div>
                     <div style="font-size:8px; color:#94a3b8">${t.refId}</div>
                 </td>
-                <td style="padding:10px;">
+                <td style="padding:10px; min-width:120px">
                     <div style="font-weight:600; color:#475569">${t.item}</div>
                     <div style="font-size:8px; color:#94a3b8">${t.desc}</div>
-                    
                 </td>
                 <td style="text-align:center; font-weight:700;">${t.qty > 0 ? t.qty + ' Kg' : '-'}</td>
-                <td style="text-align:right; color:#64748b">Rp ${hargaSatuan.toLocaleString('id-ID')}</td>
+                <td style="text-align:right; color:#64748b; white-space:nowrap">Rp ${hargaSatuan.toLocaleString('id-ID')}</td>
                 <td style="text-align:center; color:#64748b">${pctAdmin > 0 ? pctAdmin + '%' : '-'}</td>
                 <td style="text-align:right; color:#e11d48; font-weight:700;">${pengeluaran > 0 ? 'Rp ' + pengeluaran.toLocaleString('id-ID') : '-'}</td>
                 <td style="text-align:right; color:#059669;">${adminFee > 0 ? 'Rp ' + adminFee.toLocaleString('id-ID') : '-'}</td>
@@ -367,19 +401,19 @@ function saveAdminFee() {
     const totalLabaBersih = totalFeeAdmin + totalSelisih;
 
     area.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom: 2px solid #0f172a;">
+        <div class="preview-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom: 2px solid #0f172a;">
             <div>
-                <h1 style="margin:0; font-size: 20px; font-weight:800; color:#0f172a; text-transform:uppercase">Jurnal Profit Operasional</h1>
-                <p style="margin:2px 0; font-size:11px; color:#64748b; font-weight:600">BANK SAMPAH UNIT A - GOGREEN SYSTEM</p>
+                <h1 style="margin:0; font-size: 18px; font-weight:800; color:#0f172a; text-transform:uppercase">Jurnal Profit Operasional</h1>
+                <p style="margin:2px 0; font-size:10px; color:#64748b; font-weight:600">BANK SAMPAH UNIT A - GOGREEN SYSTEM</p>
             </div>
             <div style="text-align:right">
-                <div style="font-size:10px; color:#94a3b8; font-weight:bold">PERIODE LAPORAN</div>
-                <div style="font-size:12px; font-weight:800; color:#0f172a">${startDate} s/d ${endDate}</div>
+                <div style="font-size:9px; color:#94a3b8; font-weight:bold">PERIODE</div>
+                <div style="font-size:11px; font-weight:800; color:#0f172a">${startDate} - ${endDate}</div>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;">
-            <div style="background: #fff1f2; border: 1px solid #fecdd3; padding: 15px; border-radius: 12px;">
+        <div class="summary-grid">
+           <div style="background: #fff1f2; border: 1px solid #fecdd3; padding: 15px; border-radius: 12px;">
                 <p style="margin:0; font-size:9px; font-weight:800; color:#be123c; text-transform:uppercase; letter-spacing:1px">Total Pengeluaran Kas</p>
                 <h2 style="margin:5px 0 0 0; font-size:18px; font-weight:900; color:#9f1239">Rp ${totalSettlement.toLocaleString('id-ID')}</h2>
                 <p style="margin:5px 0 0 0; font-size:8px; color:#e11d48; font-weight:600 italic">* Akumulasi pembayaran settlement nasabah</p>
@@ -398,47 +432,48 @@ function saveAdminFee() {
             </div>
         </div>
 
-        <div style="margin-bottom: 25px; background: #0f172a; color: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <div>
-                <p style="margin:0; font-size:10px; font-weight:600; color:#94a3b8; text-transform:uppercase">Grand Total Keuntungan Unit</p>
+        <div class="banner-box">
+            <div style="text-align:center sm:text-left">
+                <p style="margin:0; font-size:9px; font-weight:600; color:#94a3b8; text-transform:uppercase">Total Keuntungan Unit</p>
                 <h1 style="margin:5px 0 0 0; font-size:24px; font-weight:900; color:#4ade80">Rp ${totalLabaBersih.toLocaleString('id-ID')}</h1>
             </div>
-            <div style="text-align:right">
-                <p style="margin:0; font-size:10px; color:#94a3b8">Volume Sampah Terolah</p>
+            <div style="text-align:center sm:text-right">
+                <p style="margin:0; font-size:9px; color:#94a3b8">Volume Terolah</p>
                 <p style="margin:0; font-size:18px; font-weight:800">${totalQty} Kg</p>
             </div>
         </div>
 
-        <table style="width:100%; border-collapse: collapse; margin-bottom:30px; border: 1px solid #e2e8f0;">
-            <thead>
-                <tr style="background:#f8fafc; color:#0f172a; font-size:9px; text-transform:uppercase; letter-spacing:0.5px">
-                    <th style="padding:12px; border:1px solid #e2e8f0">No</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:left">Tanggal</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:left">Pihak/Ref</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:left">Item</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0">Qty</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:right">Hrg/Kg</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0">Adm%</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:right; background:#fef2f2; color:#991b1b">Pengeluaran</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:right">Fee Admin</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:right">Profit</th>
-                    <th style="padding:12px; border:1px solid #e2e8f0; text-align:right; background:#f0fdf4; color:#064e3b">Sub Total Profit</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${rows}
-            </tbody>
-        </table>
+        <div style="width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <table style="width:100%; min-width: 850px; border-collapse: collapse;">
+                <thead>
+                    <tr style="background:#f8fafc; color:#0f172a; font-size:9px; text-transform:uppercase; border-bottom: 2px solid #e2e8f0">
+                        <th style="padding:10px; border-right:1px solid #e2e8f0">No</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:left">Tanggal</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:left">Pihak/Ref</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:left">Item</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0">Qty</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:right">Hrg/Kg</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0">Adm%</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:right; background:#fef2f2; color:#991b1b">Pengeluaran</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:right">Fee Admin</th>
+                        <th style="padding:10px; border-right:1px solid #e2e8f0; text-align:right">Profit</th>
+                        <th style="padding:10px; text-align:right; background:#f0fdf4; color:#064e3b">Sub Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
 
-        <div style="margin-top:40px; display:flex; justify-content: space-between; align-items: flex-end">
-            <div style="font-size:9px; color:#94a3b8; line-height:1.6">
-                * Harga/Kg: Mengacu pada harga beli nasabah (saat setoran) atau harga jual (saat pickup).<br>
+        <div style="margin-top:30px; display:flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+            <div style="font-size:8px; color:#94a3b8; line-height:1.6; max-width: 300px;">
                 * Laporan dihasilkan secara otomatis oleh sistem GoGreen pada ${new Date().toLocaleString('id-ID')}.
             </div>
-            <div style="text-align:center; min-width:200px">
-                <p style="font-size:11px; margin-bottom:60px; color:#475569">Mengetahui, Manager Unit A</p>
-                <p style="font-weight:800; font-size:12px; color:#0f172a; border-top:2px solid #0f172a; padding-top:8px; display:inline-block; min-width:180px">
-                    ( M.Suparman )
+            <div style="text-align:center; min-width:180px">
+                <p style="font-size:10px; margin-bottom:50px; color:#475569">Manager Unit A</p>
+                <p style="font-weight:800; font-size:11px; color:#0f172a; border-top:2px solid #0f172a; padding-top:8px;">
+                    ( M. Suparman )
                 </p>
             </div>
         </div>
